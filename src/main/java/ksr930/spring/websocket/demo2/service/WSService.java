@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 public class WSService {
-    private SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     public WSService(SimpMessagingTemplate messagingTemplate) {
@@ -17,5 +17,10 @@ public class WSService {
     public void notifyFrontend(final String message) {
         ResponseMessage response = new ResponseMessage(message);
         messagingTemplate.convertAndSend("/topic/messages", response);
+    }
+
+    public void notifyUser(final String id, final String privateMessage) {
+        ResponseMessage response = new ResponseMessage(privateMessage);
+        messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", response);
     }
 }

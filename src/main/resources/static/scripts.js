@@ -9,10 +9,10 @@ $(document).ready(function() {
         sendMessage();
     });
 
-    // $("#send-private").click(function() {
-    //     sendPrivateMessage();
-    // });
-    //
+    $("#send-private").click(function() {
+        sendPrivateMessage();
+    });
+
     // $("#notifications").click(function() {
     //     resetNotificationCount();
     // });
@@ -28,10 +28,10 @@ function connect() {
             showMessage(JSON.parse(message.body).content);
         });
 
-        // stompClient.subscribe('/user/topic/private-messages', function (message) {
-        //     showMessage(JSON.parse(message.body).content);
-        // });
-        //
+        stompClient.subscribe('/user/topic/private-messages', function (message) {
+            showMessage(JSON.parse(message.body).content);
+        });
+
         // stompClient.subscribe('/topic/global-notifications', function (message) {
         //     notificationCount = notificationCount + 1;
         //     updateNotificationDisplay();

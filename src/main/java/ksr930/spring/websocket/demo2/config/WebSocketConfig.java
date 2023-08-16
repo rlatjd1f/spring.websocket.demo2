@@ -1,5 +1,6 @@
 package ksr930.spring.websocket.demo2.config;
 
+import ksr930.spring.websocket.demo2.handler.UserHandshakeHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -18,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/our-websocket")
-                .setAllowedOrigins("http://localhost:8080")
+                .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();
     }
 
