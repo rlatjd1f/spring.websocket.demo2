@@ -21,6 +21,6 @@ public class WSService {
 
     public void notifyUser(final String id, final String privateMessage) {
         ResponseMessage response = new ResponseMessage(privateMessage);
-        messagingTemplate.convertAndSendToUser(id, "/topic/private-messages", response);
+        messagingTemplate.convertAndSendToUser(id, "/topic/messages", response);
     }
 }

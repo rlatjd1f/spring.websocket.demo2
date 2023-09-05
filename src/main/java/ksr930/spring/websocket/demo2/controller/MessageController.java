@@ -1,33 +1,30 @@
 package ksr930.spring.websocket.demo2.controller;
 
 import ksr930.spring.websocket.demo2.dto.Message;
-import ksr930.spring.websocket.demo2.dto.ResponseMessage;
+import ksr930.spring.websocket.demo2.dto.OutputMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.util.HtmlUtils;
 
 import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Controller
+@Slf4j
 public class MessageController {
 
-    @MessageMapping("/message")
-    @SendTo("/topic/messages")
-    public ResponseMessage getMessage(final Message message) throws InterruptedException {
-        Thread.sleep(1000);
+    @MessageMapping("/chat")
+    @SendToUser("/topic/messages")
+    public OutputMessage getPrivateMessage(final Message message, final Principal principal) throws InterruptedException {
+        log.info("message from: {}({}), text: {}", message.getFrom(), principal.getName(), message.getText());
 
-        return new ResponseMessage(HtmlUtils.htmlEscape(message.getMessageContent()));
-    }
+        String time = new SimpleDateFormat("HH:mm").format(new Date());
+        Message sendMsg = new Message();
+        sendMsg.setFrom("server");
+        sendMsg.setText("Hello, " + message.getFrom() + "!");
 
-
-    @MessageMapping("/private-message")
-    @SendToUser("/topic/private-messages")
-    public ResponseMessage getPrivateMessage(final Message message, final Principal principal) throws InterruptedException {
-        Thread.sleep(1000);
-        return new ResponseMessage(
-                HtmlUtils.htmlEscape(
-                        "Sending private message to user" + principal.getName() + ": " + message.getMessageContent()));
+        return new OutputMessage(sendMsg.getFrom(), sendMsg.getText(), time);
     }
 }

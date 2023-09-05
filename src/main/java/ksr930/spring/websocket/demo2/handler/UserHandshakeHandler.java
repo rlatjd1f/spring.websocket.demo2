@@ -16,7 +16,7 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
         String randomId = UUID.randomUUID().toString();
-        log.info("User with ID '{}' opened the page", randomId);
+        log.info("User '{}' Connect!!", randomId);
 
         return new UserPrincipal(randomId);
     }

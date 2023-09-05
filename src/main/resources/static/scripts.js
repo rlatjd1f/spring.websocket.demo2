@@ -1,73 +1,67 @@
 var stompClient = null;
-var notificationCount = 0;
 
-$(document).ready(function() {
+$(document).ready(function () {
     console.log("Index page is ready");
-    connect();
-
-    $("#send").click(function() {
-        sendMessage();
-    });
-
-    $("#send-private").click(function() {
-        sendPrivateMessage();
-    });
-
-    // $("#notifications").click(function() {
-    //     resetNotificationCount();
-    // });
 });
 
+function setConnected(connected) {
+    document.getElementById('connect').disabled = connected;
+    document.getElementById('disconnect').disabled = !connected;
+    document.getElementById('response').innerHTML = '';
+}
+
 function connect() {
-    var socket = new SockJS('/our-websocket');
+    let socket = new SockJS('/chat');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        // updateNotificationDisplay();
-        stompClient.subscribe('/topic/messages', function (message) {
-            showMessage(JSON.parse(message.body).content);
-        });
+        setConnected(true);
 
-        stompClient.subscribe('/user/topic/private-messages', function (message) {
-            showMessage(JSON.parse(message.body).content);
+        stompClient.subscribe('/user/topic/messages', function (message) {
+            showMessageOutput(JSON.parse(message.body));
         });
-
-        // stompClient.subscribe('/topic/global-notifications', function (message) {
-        //     notificationCount = notificationCount + 1;
-        //     updateNotificationDisplay();
-        // });
-        //
-        // stompClient.subscribe('/user/topic/private-notifications', function (message) {
-        //     notificationCount = notificationCount + 1;
-        //     updateNotificationDisplay();
-        // });
     });
 }
 
-function showMessage(message) {
-    $("#messages").append("<tr><td>" + message + "</td></tr>");
+function disconnect() {
+    if (stompClient != null) {
+        stompClient.disconnect();
+    }
+    setConnected(false);
+    console.log("Disconnected");
 }
 
 function sendMessage() {
-    console.log("sending message");
-    stompClient.send("/ws/message", {}, JSON.stringify({'messageContent': $("#message").val()}));
+    let from = document.getElementById('from').value;
+    let text = document.getElementById('text').value;
+    let msg = JSON.stringify({'from': from, 'text': text});
+    stompClient.send("/app/chat", {}, msg);
+    showSendMessage(JSON.parse(msg));
 }
 
-function sendPrivateMessage() {
-    console.log("sending private message");
-    stompClient.send("/ws/private-message", {}, JSON.stringify({'messageContent': $("#private-message").val()}));
+function showSendMessage(message) {
+    console.log(message);
+    let response = document.getElementById('response');
+    let p = document.createElement('p');
+    let time = getTime();
+
+    p.appendChild(document.createTextNode(message.from + ": "
+        + message.text + " (" + time + ")"));
+    response.appendChild(p);
 }
 
-function updateNotificationDisplay() {
-    if (notificationCount == 0) {
-        $('#notifications').hide();
-    } else {
-        $('#notifications').show();
-        $('#notifications').text(notificationCount);
-    }
+function showMessageOutput(messageOutput) {
+    let response = document.getElementById('response');
+    let p = document.createElement('p');
+    p.appendChild(document.createTextNode(messageOutput.from + ": "
+        + messageOutput.text + " (" + messageOutput.time + ")"));
+    response.appendChild(p);
 }
 
-function resetNotificationCount() {
-    notificationCount = 0;
-    updateNotificationDisplay();
+function getTime() {
+    let date = new Date();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+
+    return hours + ":" + minutes + ":" + seconds;
 }
